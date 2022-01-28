@@ -5,6 +5,7 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('servermessage')
 		.setDescription('Send a Server Setup Message in a specified channel.')
+		.setDefaultPermission(false)
 		.addStringOption(option =>
 			option.setName('message')
 				.setDescription('The Message to send.')
@@ -38,7 +39,7 @@ module.exports = {
 			const embed = new MessageEmbed()
 				.setColor('WHITE')
 				.setTitle('Please accept our rules')
-				.setDescription('> Click the checkmark below to verify that you have read and agreed to our rules.');
+				.setDescription('> By clicking accept below you confirm that you have read and agreed to our Rules.');
 			client.channels.cache.get(channel).send({ embeds: [embed], components: [row] });
 			await interaction.reply({ content: 'Verification message sent to channel', ephemeral: true });
 		}

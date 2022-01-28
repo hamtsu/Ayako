@@ -1,11 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 // const wait = require('util').promisify(setTimeout);
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('mute')
-		.setDescription('Staff Command: Issue a Timeout')
+		.setDescription('Issue a Timeout.')
+		.setDefaultPermission(false)
 		.addUserOption(option =>
 			option.setName('target')
 				.setDescription('The target for this timeout')
@@ -29,7 +30,7 @@ module.exports = {
 				.setMaxValue(100))
 		.addBooleanOption(option =>
 			option.setName('public')
-				.setDescription('Whether the timeout should be publically announced.')
+				.setDescription('Whether this timeout should be publically announced.')
 				.setRequired(true)),
 	async execute(interaction, client) {
 		const target = interaction.options.getMember('target');
@@ -77,8 +78,31 @@ module.exports = {
 			.setFooter({ text: `Issued by ${interaction.user.tag}`, iconURL: `${interaction.user.avatarURL()}` })
 			.setTimestamp();
 
+		const dmembed = new MessageEmbed()
+			.setColor('WHITE')
+			.setTitle(`${interaction.guild.name} | You have been temporarily timed-out`)
+			.setDescription(`> **Reference ID: ${ID}** `)
+			.addFields(
+				{ name: 'Reason', value: reason, inline: true },
+				{ name: 'Duration', value: `${dlength} ${dtype}`, inline: true },
+			)
+			.setTimestamp()
+			.setFooter({ text: `${rank}`, iconURL: `${image}` });
+		const dmrow = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setURL('https://discord.com/channels/921657537336574002/921670008621400094/936240488384692244')
+					.setLabel('Appeal this Punishment')
+					.setStyle('LINK'),
+			);
+
+		if (targetuser.id === '456927565689389056') {
+			await interaction.reply({ content: `❌ You can't punish **${targetuser.tag}**!`, ephemeral: true });
+			return;
+		}
+
 		if (target.isCommunicationDisabled()) {
-			interaction.reply({ content: `❌ **${targetuser.tag}** already has an active timeout.`, ephemeral: true });
+			await interaction.reply({ content: `❌ **${targetuser.tag}** already has an active timeout.`, ephemeral: true });
 			return;
 		}
 
@@ -89,12 +113,15 @@ module.exports = {
 			await interaction.reply({ embeds: [publicembed] });
 			await interaction.followUp({ content: `✅ You've temporarily muted **${targetuser.tag}** for **${dlength} ${dtype}** with the reason: *${reason}*.`, ephemeral: true });
 		}
+		else {
+			await interaction.reply({ content: `✅ You've temporarily muted **${targetuser.tag}** for **${dlength} ${dtype}** with the reason: *${reason}*.`, ephemeral: true });
+		}
 
 		client.channels.cache.get('936309022846517248').send({ embeds: [staffembed] });
 
-		if (!public) {
-			await interaction.reply({ content: `✅ You've temporarily muted **${targetuser.tag}** for **${dlength} ${dtype}** with the reason: *${reason}*.`, ephemeral: true });
-		}
+		target.send({ embeds: [dmembed], components: [dmrow] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
+
+		console.log(`[Punishment] ${interaction.user.tag}: ${targetuser.tag} was temp muted for ${dlength} ${dtype} with the reason: ${reason}`);
 
 	},
 };

@@ -6,6 +6,7 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('purge')
 		.setDescription('Purge a specified amount of messages in a channel.')
+		.setDefaultPermission(false)
 		.addIntegerOption(option =>
 			option.setName('amount')
 				.setDescription('The amount of messages to delete.')
@@ -27,5 +28,7 @@ module.exports = {
 
 		await wait(2000);
 		await interaction.deleteReply();
+
+		console.log(`[Purge] ${interaction.user.tag}: has purged #${interaction.channel.name} and removed ${amount} messages.`);
 	},
 };

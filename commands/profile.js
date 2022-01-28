@@ -10,7 +10,7 @@ module.exports = {
 				.setDescription('The target user.')
 				.setRequired(true)),
 	async execute(interaction) {
-		const user = interaction.options.getUser('user');
+		const user = interaction.options.getMember('user');
 		const embed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle(`${user.tag}'s profile`)
