@@ -1,0 +1,6 @@
+- COMPARE PERMISSIONS WITH PEOPLE YOU TRY TO PUNISH
+- setup permissons for commands
+- fix up existing commands
+- setup contact staff system (tickets most likely)
+- add reaction roles etc with select menu
+- welcome channel w welcome msgs from bot 
