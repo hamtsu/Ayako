@@ -31,20 +31,21 @@ module.exports = {
 			image = 'https://i.imgur.com/OyyT7dm.png';
 		}
 
+		// Embed that is sent publically
 		const publicembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle('User Warning Notification')
 			.setDescription(`> <@${target.id}> has recieved a warning for ***${reason}***. `)
 			.setTimestamp()
 			.setFooter({ text: `${rank}`, iconURL: `${image}` });
-
+		// Embed that is sent in staff channels
 		const staffembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle(`${target.tag} has recieved a warning`)
 			.setDescription(`**Reason:** *${reason}*`)
 			.setFooter({ text: `Issued by ${interaction.user.tag}`, iconURL: `${interaction.user.avatarURL()}` })
 			.setTimestamp();
-
+		// Embed that is sent to target through DM
 		const dmembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle(`${interaction.guild.name} | You have recieved a Warning`)
@@ -52,20 +53,24 @@ module.exports = {
 			.setTimestamp()
 			.setFooter({ text: `${rank}`, iconURL: `${image}` });
 
-		if (public) {
-			await interaction.reply({ embeds: [publicembed] });
-			await interaction.followUp({ content: `✅ You've warned **${target.tag}** with the reason: *${reason}*.`, ephemeral: true });
+		if (target.moderatable) {
+			if (public) {
+				await interaction.reply({ embeds: [publicembed] });
+				await interaction.followUp({ content: `✅ You've warned **${target.tag}** with the reason: *${reason}*.`, ephemeral: true });
+			}
+			else {
+				await interaction.reply({ content: `✅ You've warned **${target.tag}** with the reason: *${reason}*.`, ephemeral: true });
+			}
+
+			client.channels.cache.get('936309022846517248').send({ embeds: [staffembed] });
+
+			target.send({ embeds: [dmembed] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
+
+			console.log(`[Punishment] ${interaction.user.tag}: ${target.tag} was warmed with the reason: ${reason}`);
 		}
 		else {
-			await interaction.reply({ content: `✅ You've warned **${target.tag}** with the reason: *${reason}*.`, ephemeral: true });
+			await interaction.reply({ content: '❌ You can\'t punish this user!' });
 		}
 
-		client.channels.cache.get('936309022846517248').send({ embeds: [staffembed] });
-
-
-		target.send({ embeds: [dmembed] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
-
-
-		console.log(`[Punishment] ${interaction.user.tag}: ${target.tag} was warmed with the reason: ${reason}`);
 	},
 };

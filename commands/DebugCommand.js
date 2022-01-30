@@ -10,7 +10,6 @@ module.exports = {
 			.setColor('WHITE')
 			.setTitle('Bot Information')
 			.setDescription(`**PING**\n> Websocket heartbeat: \`\`${client.ws.ping}ms\`\``);
-
 		await interaction.reply({ embeds: [embed], ephemeral: true });
 	},
 };

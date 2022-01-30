@@ -60,6 +60,7 @@ module.exports = {
 			image = 'https://i.imgur.com/OyyT7dm.png';
 		}
 
+		// Embed that is sent publically
 		const publicembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle('User Timeout Notification')
@@ -70,14 +71,14 @@ module.exports = {
 			)
 			.setTimestamp()
 			.setFooter({ text: `${rank} | rID: ${ID}`, iconURL: `${image}` });
-
+		// Embed that is sent in staff channels
 		const staffembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle(`${targetuser.tag} was temporarily timed-out for ${dlength} ${dtype}`)
 			.setDescription(`**Reason:** *${reason}*\n**Reference ID:** *${ID}*`)
 			.setFooter({ text: `Issued by ${interaction.user.tag}`, iconURL: `${interaction.user.avatarURL()}` })
 			.setTimestamp();
-
+		// Embed that is sent to target through DM
 		const dmembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle(`${interaction.guild.name} | You have been temporarily timed-out`)
@@ -106,8 +107,13 @@ module.exports = {
 			return;
 		}
 
-		target.timeout(length, reason);
-		// target.setNickname(`${nick}`, 'Timeout');
+		if (target.moderatable) {
+			target.timeout(length, reason);
+		}
+		else {
+			await interaction.reply({ content: '❌ You can\'t punish this user!' });
+			return;
+		}
 
 		if (public) {
 			await interaction.reply({ embeds: [publicembed] });

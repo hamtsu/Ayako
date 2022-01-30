@@ -19,6 +19,7 @@ module.exports = {
 		await wait(1000);
 		await interaction.reply({ content: `✅ Successfully purged ${amount} messages in this channel.` });
 
+		// Embed that is sent in staff channels
 		const staffembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle(`${interaction.user.tag} has purged #${interaction.channel.name}`)

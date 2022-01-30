@@ -3,4 +3,4 @@
 - add reaction roles etc with select menu 
 - create message logs and general logs etc
 - auto mutes
-- create an automatic game thing in general chats
+- create an automatic game thing in general chats (quiz.json)

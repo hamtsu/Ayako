@@ -33,20 +33,21 @@ module.exports = {
 			image = 'https://i.imgur.com/OyyT7dm.png';
 		}
 
+		// Embed that is sent publically
 		const publicembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle('User Timeout Lifted')
 			.setDescription(`> *<@${target.id}>'s mute has been manually removed.*`)
 			.setTimestamp()
 			.setFooter({ text: `${rank}`, iconURL: `${image}` });
-
+		// Embed that is sent in staff channels
 		const staffembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle(`${targetuser.tag}'s timeout has been removed`)
 			.setDescription(`**Reason:** *${reason}*`)
 			.setFooter({ text: `Removed by ${interaction.user.tag}`, iconURL: `${interaction.user.avatarURL()}` })
 			.setTimestamp();
-
+		// Embed that is sent to target through DM
 		const dmembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle(`${interaction.guild.name} | Timeout Removal Notification`)
