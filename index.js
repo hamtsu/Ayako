@@ -16,7 +16,6 @@ for (const file of staffCommandFiles) {
 	client.commands.set(command.data.name, command);
 }
 
-
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);

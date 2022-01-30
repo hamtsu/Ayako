@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageEmbed, MessageButton } = require('discord.js');
+const { MessageActionRow, MessageEmbed, MessageButton, MessageSelectMenu } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -11,7 +11,8 @@ module.exports = {
 				.setDescription('The Message to send.')
 				.setRequired(true)
 				.addChoice('Verification Message', 'verify')
-				.addChoice('Rules Message', 'rules'))
+				.addChoice('Rules Message', 'rules')
+				.addChoice('Age Role Selctor', 'ageroles'))
 		.addStringOption(option =>
 			option.setName('channel')
 				.setDescription('Channel ID for the server message to be sent in.')
@@ -50,6 +51,61 @@ module.exports = {
 				.setDescription('*To be written*');
 			client.channels.cache.get(channel).send({ embeds: [embed] });
 			await interaction.reply({ content: 'Rules message sent to channel', ephemeral: true });
+		}
+		else if (message === 'ageroles') {
+			const embed = new MessageEmbed()
+				.setColor('WHITE')
+				.setTitle('Location Roles')
+				.setDescription('> Select the role that best indicates where you\'re from.');
+			const row = new MessageActionRow()
+				.addComponents(
+					new MessageSelectMenu()
+						.setCustomId('locselector')
+						.setPlaceholder('Select your location')
+						.setMinValues(1)
+						.setMaxValues(1)
+						.addOptions([
+							{
+								label: 'Asia',
+								value: 'as',
+								description: 'You are from Asia.',
+							},
+							{
+								label: 'North America',
+								value: 'na',
+								description: 'You are from North America.',
+							},
+							{
+								label: 'South America',
+								value: 'sa',
+								description: 'You are from South America.',
+							},
+							{
+								label: 'Europe',
+								value: 'eu',
+								description: 'You are from Europe.',
+							},
+							{
+								label: 'Africa',
+								value: 'af',
+								description: 'You are from Africa.',
+							},
+							{
+								label: 'Oceania',
+								value: 'oce',
+								description: 'You are from Oceania.',
+							},
+						]),
+				);
+
+
+			if (client.channels.cache.has(channel)) {
+				client.channels.cache.get(channel).send({ embeds: [embed], components: [row] });
+				interaction.reply({ content: '✅ Successfully sent Age Selector to channel.', ephemeral: true });
+			}
+			else {
+				interaction.reply({ content: '❌ That channel could not be found inside of this guild.', ephemeral: true });
+			}
 		}
 	},
 };
