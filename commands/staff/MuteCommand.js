@@ -97,11 +97,6 @@ module.exports = {
 					.setStyle('LINK'),
 			);
 
-		if (targetuser.id === '456927565689389056') {
-			await interaction.reply({ content: `❌ You can't punish **${targetuser.tag}**!`, ephemeral: true });
-			return;
-		}
-
 		if (target.isCommunicationDisabled()) {
 			await interaction.reply({ content: `❌ **${targetuser.tag}** already has an active timeout.`, ephemeral: true });
 			return;

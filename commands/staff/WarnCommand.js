@@ -1,5 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
+const punishmentLogSchema = require('../../events/database/schemas/PunishmentLogSchema');
+const mongo = require('../../events/database/Mongo');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -53,24 +55,47 @@ module.exports = {
 			.setTimestamp()
 			.setFooter({ text: `${rank}`, iconURL: `${image}` });
 
-		if (target.moderatable) {
-			if (public) {
-				await interaction.reply({ embeds: [publicembed] });
-				await interaction.followUp({ content: `✅ You've warned **${target.tag}** with the reason: *${reason}*.`, ephemeral: true });
-			}
-			else {
-				await interaction.reply({ content: `✅ You've warned **${target.tag}** with the reason: *${reason}*.`, ephemeral: true });
-			}
-
-			client.channels.cache.get('936309022846517248').send({ embeds: [staffembed] });
-
-			target.send({ embeds: [dmembed] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
-
-			console.log(`[Punishment] ${interaction.user.tag}: ${target.tag} was warmed with the reason: ${reason}`);
+		if (public) {
+			await interaction.reply({ embeds: [publicembed] });
+			await interaction.followUp({ content: `✅ You've warned **${target.tag}** with the reason: *${reason}*.`, ephemeral: true });
 		}
 		else {
-			await interaction.reply({ content: '❌ You can\'t punish this user!' });
+			await interaction.reply({ content: `✅ You've warned **${target.tag}** with the reason: *${reason}*.`, ephemeral: true });
 		}
+
+		client.channels.cache.get('936309022846517248').send({ embeds: [staffembed] });
+
+		target.send({ embeds: [dmembed] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
+
+		console.log(`[Punishment] ${interaction.user.tag}: ${target.tag} was warmed with the reason: ${reason}`);
+
+		const guildId = interaction.guild.id;
+		const issuerId = interaction.member.id;
+		const targetId = target.id;
+		const punishment = 'Warning';
+
+		const d = new Date,
+			date = [d.getMonth() + 1,
+				d.getDate(),
+				d.getFullYear()].join('/') + ' ' + [d.getHours(),
+				d.getMinutes(),
+				d.getSeconds()].join(':');
+
+		await mongo().then(async (mongoose) => {
+			try {
+				await new punishmentLogSchema({
+					guildId,
+					issuerId,
+					targetId,
+					punishment,
+					reason,
+					date,
+				}).save();
+			}
+			finally {
+				mongoose.connection.close();
+			}
+		});
 
 	},
 };
