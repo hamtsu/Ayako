@@ -10,11 +10,12 @@ module.exports = {
 				.setDescription('The target user.')
 				.setRequired(true)),
 	async execute(interaction) {
-		const user = interaction.options.getMember('user');
+		const target = interaction.options.getMember('user');
+		const targetuser = interaction.options.getUser('user');
 		const embed = new MessageEmbed()
 			.setColor('WHITE')
-			.setTitle(`${user.tag}'s profile`)
-			.setImage(user.displayAvatarURL());
+			.setTitle(`${targetuser.tag}'s profile`)
+			.setImage(target.displayAvatarURL());
 
 		await interaction.reply({ embeds: [embed] });
 	},

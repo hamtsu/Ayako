@@ -1,11 +1,13 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
+const punishmentLogSchema = require('../../events/database/schemas/PunishmentLogSchema');
+const mongo = require('../../events/database/Mongo');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('kick')
 		.setDescription('Issue a Kick.')
-		.setDefaultPermission(true)
+		.setDefaultPermission(false)
 		.addUserOption(option =>
 			option.setName('target')
 				.setDescription('The target for this kick.')
@@ -35,7 +37,7 @@ module.exports = {
 		const publicembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle('User Kick Notification')
-			.setDescription(`> *<@${target.id}> has been kicked from the server for ${reason}.*\n\n`)
+			.setDescription(`> *<@${target.id}> has been kicked from the server for **${reason}**.*\n\n`)
 			.setTimestamp()
 			.setFooter({ text: `${rank}`, iconURL: `${image}` });
 		// Embed that is sent in staff channels
@@ -53,11 +55,12 @@ module.exports = {
 			.setTimestamp()
 			.setFooter({ text: `${rank}`, iconURL: `${image}` });
 
-		if (target.moderatable) {
+		if (target.kickable) {
+			await target.send({ embeds: [dmembed] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${targetuser.tag}** as they have their DMs Off.`, ephemeral: true }));
 			target.kick(reason);
 		}
 		else {
-			await interaction.reply({ content: '❌ You can\'t punish this user!' });
+			await interaction.reply({ content: '❌ You can\'t kick this user!' });
 			return;
 		}
 
@@ -71,8 +74,48 @@ module.exports = {
 
 		client.channels.cache.get('936309022846517248').send({ embeds: [staffembed] });
 
-		target.send({ embeds: [dmembed] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${targetuser.tag}** as they have their DMs Off.`, ephemeral: true }));
-
 		console.log(`[Punishment] ${interaction.user.tag}: ${targetuser.tag} was kicked with the reason: ${reason}`);
+
+		const guildId = interaction.guild.id;
+		const issuerId = interaction.member.id;
+		const targetId = target.id;
+		const punishment = 'Kick';
+		const duration = 'Permanent';
+		let silent = 'Public';
+		const refId = 'N/A';
+
+		if (!public) {
+			silent = 'Silent';
+		}
+
+		const d = new Date,
+			date = [d.getMonth() + 1,
+				d.getDate(),
+				d.getFullYear()].join('/') + ' ' + [d.getHours(),
+				d.getMinutes(),
+				d.getSeconds()].join(':');
+
+		await mongo().then(async (mongoose) => {
+			try {
+				await new punishmentLogSchema({
+					guildId,
+					issuerId,
+					targetId,
+					punishment,
+					reason,
+					date,
+					duration,
+					silent,
+					refId,
+					removed: false,
+					removedBy: 'N/A',
+					removedReason: 'N/A',
+				}).save();
+			}
+			finally {
+				mongoose.connection.close();
+			}
+		});
+
 	},
 };

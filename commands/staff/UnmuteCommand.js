@@ -1,6 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
 // const wait = require('util').promisify(setTimeout);
+const mongo = require('../../events/database/Mongo');
+const punishmentLogSchema = require('../../events/database/schemas/PunishmentLogSchema');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -15,6 +17,10 @@ module.exports = {
 			option.setName('reason')
 				.setDescription('The reason for this removal.')
 				.setRequired(true))
+		.addStringOption(option =>
+			option.setName('referenceid')
+				.setDescription('The reason for this removal.')
+				.setRequired(true))
 		.addBooleanOption(option =>
 			option.setName('public')
 				.setDescription('Whether this removal should be publically announced.')
@@ -23,6 +29,7 @@ module.exports = {
 		const target = interaction.options.getMember('target');
 		const targetuser = interaction.options.getUser('target');
 		const reason = interaction.options.getString('reason');
+		const rId = interaction.options.getString('referenceid');
 		const public = interaction.options.getBoolean('public');
 
 		let rank = 'Issued by a Moderator';
@@ -75,5 +82,14 @@ module.exports = {
 		target.send({ embeds: [dmembed] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
 
 		console.log(`[Punishment] ${interaction.user.tag}: ${targetuser.tag} was unmuted with the reason: ${reason}`);
+
+		await mongo().then(async (mongooze) => {
+			try {
+				await punishmentLogSchema.updateOne({ refId: rId }, { removed: true, removedBy: interaction.user.id, removedReason: reason });
+			}
+			finally {
+				mongooze.connection.close();
+			}
+		});
 	},
 };

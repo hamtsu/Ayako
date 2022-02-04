@@ -10,14 +10,24 @@ module.exports = {
 		const unmuteCommand = all_fetchedCommands.find(command => command.name === 'unmute');
 		const kickCommand = all_fetchedCommands.find(command => command.name === 'kick');
 		const smessageCommand = all_fetchedCommands.find(command => command.name === 'servermessage');
+		const historyCommand = all_fetchedCommands.find(command => command.name === 'history');
 		const warnCommandId = warnCommand.permissions.commandId;
 		const purgeCommandId = purgeCommand.permissions.commandId;
 		const muteCommandId = muteCommand.permissions.commandId;
 		const unmuteCommandId = unmuteCommand.permissions.commandId;
 		const kickCommandId = kickCommand.permissions.commandId;
 		const smessageCommandId = smessageCommand.permissions.commandId;
+		const historyCommandId = historyCommand.permissions.commandId;
 
 		const fullPermissions = [
+			{
+				id: historyCommandId,
+				permissions: [{
+					id: '921665226523430943',
+					type: 'ROLE',
+					permission: true,
+				}],
+			},
 			{
 				id: warnCommandId,
 				permissions: [{

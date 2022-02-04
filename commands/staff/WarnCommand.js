@@ -73,6 +73,13 @@ module.exports = {
 		const issuerId = interaction.member.id;
 		const targetId = target.id;
 		const punishment = 'Warning';
+		const duration = 'Permanent';
+		let silent = 'Public';
+		const refId = 'N/A';
+
+		if (!public) {
+			silent = 'Silent';
+		}
 
 		const d = new Date,
 			date = [d.getMonth() + 1,
@@ -90,6 +97,12 @@ module.exports = {
 					punishment,
 					reason,
 					date,
+					duration,
+					silent,
+					refId,
+					removed: false,
+					removedBy: 'N/A',
+					removedReason: 'N/A',
 				}).save();
 			}
 			finally {

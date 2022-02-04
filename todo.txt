@@ -1,3 +1,4 @@
+- add pagination to history command
 - setup contact staff system (tickets most likely) 
   After: Change Appeal link (punishment dm button) and contact staff button (verification message)
 - add reaction roles etc with select menu 

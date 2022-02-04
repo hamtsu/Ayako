@@ -1,6 +1,9 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 // const wait = require('util').promisify(setTimeout);
+const punishmentLogSchema = require('../../events/database/schemas/PunishmentLogSchema');
+const mongo = require('../../events/database/Mongo');
+
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -15,19 +18,19 @@ module.exports = {
 			option.setName('reason')
 				.setDescription('The reason for this timeout.')
 				.setRequired(true))
-		.addStringOption(option =>
-			option.setName('durationtype')
-				.setDescription('The duration type for this timeout.')
-				.setRequired(true)
-				.addChoice('Minutes', 'Minute(s)')
-				.addChoice('Hours', 'Hour(s)')
-				.addChoice('Days', 'Day(s)'))
 		.addIntegerOption(option =>
-			option.setName('durationlength')
+			option.setName('length')
 				.setDescription('The duration length for this timeout.')
 				.setRequired(true)
 				.setMinValue(1)
 				.setMaxValue(100))
+		.addStringOption(option =>
+			option.setName('period')
+				.setDescription('The duration period for this timeout.')
+				.setRequired(true)
+				.addChoice('Minutes', 'Minute(s)')
+				.addChoice('Hours', 'Hour(s)')
+				.addChoice('Days', 'Day(s)'))
 		.addBooleanOption(option =>
 			option.setName('public')
 				.setDescription('Whether this timeout should be publically announced.')
@@ -36,8 +39,8 @@ module.exports = {
 		const target = interaction.options.getMember('target');
 		const targetuser = interaction.options.getUser('target');
 		const reason = interaction.options.getString('reason');
-		const dtype = interaction.options.getString('durationtype');
-		const dlength = interaction.options.getInteger('durationlength');
+		const dtype = interaction.options.getString('period');
+		const dlength = interaction.options.getInteger('length');
 		const public = interaction.options.getBoolean('public');
 		const ID = (Math.random() + 1).toString(36).substring(7);
 		let length = 300000;
@@ -102,11 +105,11 @@ module.exports = {
 			return;
 		}
 
-		if (target.moderatable) {
+		if (!targetuser.bot) {
 			target.timeout(length, reason);
 		}
 		else {
-			await interaction.reply({ content: '❌ You can\'t punish this user!' });
+			await interaction.reply({ content: '❌ You can\'t mute this user!' });
 			return;
 		}
 
@@ -122,7 +125,48 @@ module.exports = {
 
 		target.send({ embeds: [dmembed], components: [dmrow] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
 
-		console.log(`[Punishment] ${interaction.user.tag}: ${targetuser.tag} was temp muted for ${dlength} ${dtype} with the reason: ${reason}`);
+		console.log(`[Punishment] ${interaction.user.tag}: ${targetuser.tag} was timed-out for ${dlength} ${dtype} with the reason: ${reason}`);
+
+		const guildId = interaction.guild.id;
+		const issuerId = interaction.member.id;
+		const targetId = target.id;
+		const punishment = 'Timeout';
+		const duration = `${dlength} ${dtype}`;
+		let silent = 'Public';
+		const refId = ID;
+
+		if (!public) {
+			silent = 'Silent';
+		}
+
+		const d = new Date,
+			date = [d.getMonth() + 1,
+				d.getDate(),
+				d.getFullYear()].join('/') + ' ' + [d.getHours(),
+				d.getMinutes(),
+				d.getSeconds()].join(':');
+
+		await mongo().then(async (mongoose) => {
+			try {
+				await new punishmentLogSchema({
+					guildId,
+					issuerId,
+					targetId,
+					punishment,
+					reason,
+					date,
+					duration,
+					silent,
+					refId,
+					removed: false,
+					removedBy: 'N/A',
+					removedReason: 'N/A',
+				}).save();
+			}
+			finally {
+				mongoose.connection.close();
+			}
+		});
 
 	},
 };
