@@ -67,6 +67,22 @@ module.exports = {
 			return;
 		}
 
+		await mongo().then(async (mongooze) => {
+			try {
+				const result = await punishmentLogSchema.findById(rId);
+				if (result) {
+					await punishmentLogSchema.updateOne({ _id: rId }, { removed: true, removedBy: interaction.user.id, removedReason: reason });
+				}
+				else {
+					interaction.reply({ content: '❌ A punishment with this Reference ID could not be found.', ephemeral: true });
+					return;
+				}
+			}
+			finally {
+				mongooze.connection.close();
+			}
+		});
+
 		target.timeout(null, reason);
 
 		if (public) {
@@ -83,13 +99,5 @@ module.exports = {
 
 		console.log(`[Punishment] ${interaction.user.tag}: ${targetuser.tag} was unmuted with the reason: ${reason}`);
 
-		await mongo().then(async (mongooze) => {
-			try {
-				await punishmentLogSchema.updateOne({ refId: rId }, { removed: true, removedBy: interaction.user.id, removedReason: reason });
-			}
-			finally {
-				mongooze.connection.close();
-			}
-		});
 	},
 };

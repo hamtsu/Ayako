@@ -15,14 +15,16 @@ const punishmentLogSchema = mongoose.Schema({
 	targetId: reqString,
 	punishment: reqString,
 	reason: reqString,
-	date: reqString,
-	duration: reqString,
+	duration: { type: String },
 	silent: reqString,
-	refId: reqString,
+	_id: reqString,
 	removed: { type: Boolean },
 	removedBy: { type: String },
 	removedReason: { type: String },
+	until: { type: Date },
+}, {
+	timestamps: true,
 });
 
-const model = mongoose.model('punishmentlogs', punishmentLogSchema);
+const model = mongoose.model('punishment-logs', punishmentLogSchema);
 module.exports = model;

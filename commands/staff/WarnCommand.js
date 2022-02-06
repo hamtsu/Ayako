@@ -73,20 +73,11 @@ module.exports = {
 		const issuerId = interaction.member.id;
 		const targetId = target.id;
 		const punishment = 'Warning';
-		const duration = 'Permanent';
 		let silent = 'Public';
-		const refId = 'N/A';
 
 		if (!public) {
 			silent = 'Silent';
 		}
-
-		const d = new Date,
-			date = [d.getMonth() + 1,
-				d.getDate(),
-				d.getFullYear()].join('/') + ' ' + [d.getHours(),
-				d.getMinutes(),
-				d.getSeconds()].join(':');
 
 		await mongo().then(async (mongoose) => {
 			try {
@@ -96,13 +87,9 @@ module.exports = {
 					targetId,
 					punishment,
 					reason,
-					date,
-					duration,
 					silent,
-					refId,
+					_id: (Math.random() + 1).toString(36).substring(4),
 					removed: false,
-					removedBy: 'N/A',
-					removedReason: 'N/A',
 				}).save();
 			}
 			finally {

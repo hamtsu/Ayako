@@ -46,7 +46,6 @@ module.exports = {
 		let length = 300000;
 		let rank = 'Issued by a Moderator';
 		let image = 'https://i.imgur.com/dg61aHi.png';
-		// let nick = `[Timeout] ${target.displayName}`;
 
 		if (dtype === 'Minute(s)') {
 			length = dlength * 60000;
@@ -133,18 +132,11 @@ module.exports = {
 		const punishment = 'Timeout';
 		const duration = `${dlength} ${dtype}`;
 		let silent = 'Public';
-		const refId = ID;
+		const _id = ID;
 
 		if (!public) {
 			silent = 'Silent';
 		}
-
-		const d = new Date,
-			date = [d.getMonth() + 1,
-				d.getDate(),
-				d.getFullYear()].join('/') + ' ' + [d.getHours(),
-				d.getMinutes(),
-				d.getSeconds()].join(':');
 
 		await mongo().then(async (mongoose) => {
 			try {
@@ -154,13 +146,13 @@ module.exports = {
 					targetId,
 					punishment,
 					reason,
-					date,
 					duration,
 					silent,
-					refId,
+					_id,
 					removed: false,
 					removedBy: 'N/A',
 					removedReason: 'N/A',
+					until: target.communicationDisabledUntil,
 				}).save();
 			}
 			finally {

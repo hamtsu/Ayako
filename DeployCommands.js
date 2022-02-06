@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { clientId, guildId, token } = require('./configuration/config.json');
@@ -15,6 +16,7 @@ for (const file of staffCommandFiles) {
 	const command = require(`./commands/staff/${file}`);
 	commands.push(command.data.toJSON());
 }
+
 
 const rest = new REST({ version: '9' }).setToken(token);
 
