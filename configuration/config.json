@@ -2,5 +2,10 @@
     "clientId": "936117232579260447",
     "guildId": "921657537336574002",
     "token": "OTM2MTE3MjMyNTc5MjYwNDQ3.YfIhHA.p3NBYUlIlGqLWGrfc4R4Gf8bEaQ",
-    "dbToken": "mongodb+srv://bot:o6PeuaUkaWagPZbv@cluster0.sszwd.mongodb.net/Ayako?retryWrites=true&w=majority"
+    "dbToken": "mongodb+srv://bot:o6PeuaUkaWagPZbv@cluster0.sszwd.mongodb.net/Ayako?retryWrites=true&w=majority",
+    "muteableWords": ["nigger", "niggur", "faggot"],
+    "channels": {
+        "publicChannelIds": ["921657537336574006", "940845220499689543"],
+        "staffLogs": "936309022846517248"
+    }
 }

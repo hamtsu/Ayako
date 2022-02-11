@@ -1,10 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, MessageActionRow, MessageButton, Permissions } = require('discord.js');
+const config = require('../../configuration/config.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('lock')
 		.setDescription('Prevent normal users from typing inside of a channel.')
+		.setDefaultPermission(false)
 		.addStringOption(option =>
 			option.setName('channel')
 				.setDescription('Where should this lockdown be applied?')
@@ -18,12 +20,19 @@ module.exports = {
 	async execute(interaction, client) {
 		const choice = interaction.options.getString('channel');
 		const reason = interaction.options.getString('reason');
+		const stafflogs = config.channels.staffLogs;
+
 		let rank = 'Issued by a Moderator';
 		let image = 'https://i.imgur.com/dg61aHi.png';
 
 		if (interaction.member.roles.cache?.has('921665022768345139')) {
 			rank = 'Issued by an Administrator';
 			image = 'https://i.imgur.com/OyyT7dm.png';
+		}
+
+		if (config.channels.publicChannelIds.length <= 0) {
+			interaction.reply({ content: '<:Error:939392259160416307> Cannot lock the server as you haven\'t specified public channels in configuration.', ephemeral: true });
+			return;
 		}
 
 		// Embed that is sent publically
@@ -36,10 +45,10 @@ module.exports = {
 		const globalpublicembed = new MessageEmbed()
 			.setColor('WHITE')
 			.setTitle('Server Lockdown')
-			.setDescription('> ***The Tavern** has been put into lockdown.*\n\n> *Please wait patiently while staff work to resolve the situation.*')
+			.setDescription('> ***The Tavern** has been put into lockdown.*\n> *Please wait patiently while staff work to resolve the situation.*')
 			.setTimestamp()
 			.setFooter({ text: `${rank}`, iconURL: `${image}` });
-		const publicrow = new MessageActionRow()
+		const publiccurrentrow = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
 					.setURL('https://discord.com/channels/921657537336574002/921670008621400094/936240488384692244')
@@ -48,6 +57,21 @@ module.exports = {
 				new MessageButton()
 					.setCustomId('unlock')
 					.setLabel('Unlock')
+					.setStyle('SUCCESS')
+					.setEmoji('🔓'),
+			);
+		const publicglobalrow = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setURL('https://discord.com/channels/921657537336574002/921670008621400094/936240488384692244')
+					.setLabel('Why is this happening?')
+					.setStyle('LINK'),
+			);
+		const staffglobalrow = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('global')
+					.setLabel('Remove Lockdown')
 					.setStyle('SUCCESS')
 					.setEmoji('🔓'),
 			);
@@ -70,7 +94,7 @@ module.exports = {
 
 		if (choice === 'current') {
 			if (interaction.channel.permissionsFor(role).has('SEND_MESSAGES') === false) {
-				interaction.reply({ content: '❌ This channel is already locked.', ephemeral: true });
+				interaction.reply({ content: '❌ This channel is already locked, or normal users don\t have permission to speak here.', ephemeral: true });
 				return;
 			}
 
@@ -81,12 +105,24 @@ module.exports = {
 				},
 			]);
 
-			interaction.reply({ embeds: [currentpublicembed], components: [publicrow] });
-			client.channels.cache.get('936309022846517248').send({ embeds: [currentstaffembed] });
+			interaction.reply({ embeds: [currentpublicembed], components: [publiccurrentrow] });
+			client.channels.cache.get(stafflogs).send({ embeds: [currentstaffembed] });
+		}
+		else if (choice === 'global') {
+			const channels = config.channels.publicChannelIds;
+			for (const ch of channels) {
+				const channel1 = interaction.guild.channels.cache.get(ch);
+				channel1.permissionOverwrites.set([
+					{
+						id: role,
+						deny: [Permissions.FLAGS.SEND_MESSAGES],
+					},
+				]);
+				channel1.send({ embeds: [globalpublicembed], components: [publicglobalrow] });
+			}
+			interaction.reply({ content: '✅ Successfully intiated server lockdown, visit <#936309022846517248> to remove the lock.', ephemeral: true });
+			client.channels.cache.get(stafflogs).send({ embeds: [globalstaffembed], components: [staffglobalrow] });
 		}
 
-		if (choice === 'global') {
-			
-		}
 	},
 };

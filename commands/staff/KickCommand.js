@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
 const punishmentLogSchema = require('../../events/database/schemas/PunishmentLogSchema');
 const mongo = require('../../events/database/Mongo');
+const config = require('../../configuration/config.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -25,6 +26,7 @@ module.exports = {
 		const targetuser = interaction.options.getUser('target');
 		const reason = interaction.options.getString('reason');
 		const public = interaction.options.getBoolean('public');
+		const stafflogs = config.channels.staffLogs;
 		let rank = 'Issued by a Moderator';
 		let image = 'https://i.imgur.com/dg61aHi.png';
 
@@ -72,7 +74,7 @@ module.exports = {
 			await interaction.reply({ content: `✅ You've kicked **${targetuser.tag}** with the reason: *${reason}*.`, ephemeral: true });
 		}
 
-		client.channels.cache.get('936309022846517248').send({ embeds: [staffembed] });
+		client.channels.cache.get(stafflogs).send({ embeds: [staffembed] });
 
 		console.log(`[Punishment] ${interaction.user.tag}: ${targetuser.tag} was kicked with the reason: ${reason}`);
 
@@ -80,7 +82,6 @@ module.exports = {
 		const issuerId = interaction.member.id;
 		const targetId = target.id;
 		const punishment = 'Kick';
-		const duration = 'Permanent';
 		let silent = 'Public';
 
 		if (!public) {

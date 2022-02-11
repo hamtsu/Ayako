@@ -48,7 +48,7 @@ module.exports = {
 
 						if (result.punishment === 'Timeout') {
 							// Calculate time information
-							const today = new Date();
+							const today = Date.now();
 							const until = result.until;
 							let expired = false;
 							let expiresin = '';

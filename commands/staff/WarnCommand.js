@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
 const punishmentLogSchema = require('../../events/database/schemas/PunishmentLogSchema');
 const mongo = require('../../events/database/Mongo');
+const config = require('../../configuration/config.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -24,7 +25,7 @@ module.exports = {
 		const target = interaction.options.getUser('target');
 		const reason = interaction.options.getString('reason');
 		const public = interaction.options.getBoolean('public');
-
+		const stafflogs = config.channels.staffLogs;
 		let rank = 'Issued by a Moderator';
 		let image = 'https://i.imgur.com/dg61aHi.png';
 
@@ -63,11 +64,11 @@ module.exports = {
 			await interaction.reply({ content: `✅ You've warned **${target.tag}** with the reason: *${reason}*.`, ephemeral: true });
 		}
 
-		client.channels.cache.get('936309022846517248').send({ embeds: [staffembed] });
+		client.channels.cache.get(stafflogs).send({ embeds: [staffembed] });
 
 		target.send({ embeds: [dmembed] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
 
-		console.log(`[Punishment] ${interaction.user.tag}: ${target.tag} was warmed with the reason: ${reason}`);
+		console.log(`[Punishment] ${interaction.user.tag}: ${target.tag} was warned with the reason: ${reason}`);
 
 		const guildId = interaction.guild.id;
 		const issuerId = interaction.member.id;

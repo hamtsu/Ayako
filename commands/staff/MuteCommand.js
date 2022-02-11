@@ -1,8 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
-// const wait = require('util').promisify(setTimeout);
 const punishmentLogSchema = require('../../events/database/schemas/PunishmentLogSchema');
 const mongo = require('../../events/database/Mongo');
+const config = require('../../configuration/config.json');
 
 
 module.exports = {
@@ -43,6 +43,7 @@ module.exports = {
 		const dlength = interaction.options.getInteger('length');
 		const public = interaction.options.getBoolean('public');
 		const ID = (Math.random() + 1).toString(36).substring(7);
+		const stafflogs = config.channels.staffLogs;
 		let length = 300000;
 		let rank = 'Issued by a Moderator';
 		let image = 'https://i.imgur.com/dg61aHi.png';
@@ -108,7 +109,7 @@ module.exports = {
 			target.timeout(length, reason);
 		}
 		else {
-			await interaction.reply({ content: '❌ You can\'t mute this user!' });
+			await interaction.reply({ content: '❌ You can\'t mute a bot!' });
 			return;
 		}
 
@@ -120,7 +121,7 @@ module.exports = {
 			await interaction.reply({ content: `✅ You've temporarily muted **${targetuser.tag}** for **${dlength} ${dtype}** with the reason: *${reason}*.`, ephemeral: true });
 		}
 
-		client.channels.cache.get('936309022846517248').send({ embeds: [staffembed] });
+		client.channels.cache.get(stafflogs).send({ embeds: [staffembed] });
 
 		target.send({ embeds: [dmembed], components: [dmrow] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
 

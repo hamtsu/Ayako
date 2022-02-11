@@ -6,6 +6,7 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('database')
 		.setDescription('Access database options.')
+		.setDefaultPermission(false)
 		.addSubcommand(subcommand =>
 			subcommand.setName('purge')
 				.setDescription('Delete all documents in a specified collection.')

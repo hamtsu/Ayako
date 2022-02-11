@@ -4,10 +4,6 @@ const reqString = {
 	type: String,
 	required: true,
 };
-const reqBoolean = {
-	type: Boolean,
-	required: true,
-};
 
 const punishmentLogSchema = mongoose.Schema({
 	guildId: reqString,
@@ -26,5 +22,4 @@ const punishmentLogSchema = mongoose.Schema({
 	timestamps: true,
 });
 
-const model = mongoose.model('punishment-logs', punishmentLogSchema);
-module.exports = model;
+module.exports = mongoose.model('punishment-logs', punishmentLogSchema);

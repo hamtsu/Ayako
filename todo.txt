@@ -2,13 +2,11 @@
   After: Change Appeal link (punishment dm button) and contact staff button (verification message)
 - add more reaction roles etc with select menu 
 - create message logs and general logs etc
-- auto mutes
 - create an automatic game thing in general chats (quiz.json)
-- make events like eg onTimeoutRemove, so then timeouts can be removed from the database when not removed with command
 - check to make sure randomly generated refids arent the same
-- add a channel lock command
 - staff history command
 - add Anti raid on verification stuff
   Target new members that have new Discord accounts.
   Target new members that do not have a profile picture.
   Target new members that have invite links in their usernames.
+  - Fix up Date#getTime() in history cmd and any other places etc

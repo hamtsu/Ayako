@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
 const wait = require('util').promisify(setTimeout);
+const config = require('../../configuration/config.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -15,6 +16,7 @@ module.exports = {
 				.setRequired(true)),
 	async execute(interaction, client) {
 		const amount = interaction.options.getInteger('amount');
+		const stafflogs = config.channels.staffLogs;
 		interaction.channel.bulkDelete(amount, true);
 		await wait(1000);
 		await interaction.reply({ content: `✅ Successfully purged ${amount} messages in this channel.` });
@@ -25,7 +27,7 @@ module.exports = {
 			.setTitle(`${interaction.user.tag} has purged #${interaction.channel.name}`)
 			.setDescription(`**Amount:** ${amount} message(s)`)
 			.setTimestamp();
-		client.channels.cache.get('936309022846517248').send({ embeds: [staffembed] });
+		client.channels.cache.get(stafflogs).send({ embeds: [staffembed] });
 
 		await wait(2000);
 		await interaction.deleteReply();

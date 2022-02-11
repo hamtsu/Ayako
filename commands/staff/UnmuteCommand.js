@@ -1,8 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
-// const wait = require('util').promisify(setTimeout);
 const mongo = require('../../events/database/Mongo');
 const punishmentLogSchema = require('../../events/database/schemas/PunishmentLogSchema');
+const config = require('../../configuration/config.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -31,7 +31,7 @@ module.exports = {
 		const reason = interaction.options.getString('reason');
 		const rId = interaction.options.getString('referenceid');
 		const public = interaction.options.getBoolean('public');
-
+		const stafflogs = config.channels.staffLogs;
 		let rank = 'Issued by a Moderator';
 		let image = 'https://i.imgur.com/dg61aHi.png';
 
@@ -93,7 +93,7 @@ module.exports = {
 			await interaction.reply({ content: `✅ You've removed **${targetuser.tag}**'s timeout with the reason: *${reason}*.`, ephemeral: true });
 		}
 
-		client.channels.cache.get('936309022846517248').send({ embeds: [staffembed] });
+		client.channels.cache.get(stafflogs).send({ embeds: [staffembed] });
 
 		target.send({ embeds: [dmembed] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
 
