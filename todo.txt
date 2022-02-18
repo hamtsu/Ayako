@@ -10,4 +10,4 @@
   Target new members that do not have a profile picture.
   Target new members that have invite links in their usernames.
   - Fix up Date#getTime() in history cmd and any other places etc
-  - make a github wiki and everything
+  - make a github wiki and everything (gitbook)
