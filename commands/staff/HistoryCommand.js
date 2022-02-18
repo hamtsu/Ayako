@@ -3,7 +3,6 @@ const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js');
 const punishmentLogSchema = require('../../events/database/schemas/PunishmentLogSchema');
 const mongo = require('../../events/database/Mongo');
 const moment = require('moment');
-const { ButtonPaginator } = require('@psibean/discord.js-pagination');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -63,7 +62,7 @@ module.exports = {
 							const minutesms = expires % (60 * 1000);
 							const sec = Math.floor(minutesms / 1000);
 							expiresin = `${days}d ${hours}h ${minutes}m ${sec}s`;
-							if (today.getTime() >= until.getTime()) {
+							if (new Date(today).getTime() >= new Date(until).getTime()) {
 								expired = true;
 							}
 
@@ -110,6 +109,8 @@ module.exports = {
 					customId: forwardId,
 				});
 
+				let currentPage = 1;
+
 				const generateEmbed = async start => {
 					const current = punishments.slice(start, start + 4).join('');
 					const embed = new MessageEmbed()
@@ -117,7 +118,7 @@ module.exports = {
 						.setTitle(`Punishment Information (${targetuser.tag})`)
 						.setDescription(`**Current Status**\n${punishstatus}\n\n**Prior Punishments**\n${current}`)
 						.setTimestamp()
-						.setFooter({ text: `${targetuser.tag}'s Punishment History`, iconURL: `${target.displayAvatarURL()}` });
+						.setFooter({ text: `Current Page: ${currentPage}`, iconURL: `${target.displayAvatarURL()}` });
 					return embed;
 				};
 
@@ -133,7 +134,7 @@ module.exports = {
 
 				let currentIndex = 0;
 				collector.on('collect', async message => {
-					message.customId === backId ? (currentIndex -= 4) : (currentIndex += 4);
+					message.customId === backId ? (currentIndex -= 4, currentPage = currentPage - 1) : (currentIndex += 4, currentPage = currentPage + 1);
 					await message.update({
 						embeds: [await generateEmbed(currentIndex)],
 						components: [
