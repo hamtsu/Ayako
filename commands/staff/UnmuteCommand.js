@@ -67,11 +67,35 @@ module.exports = {
 			return;
 		}
 
+
 		await mongo().then(async (mongooze) => {
 			try {
 				const result = await punishmentLogSchema.findById(rId);
 				if (result) {
-					await punishmentLogSchema.updateOne({ _id: rId }, { removed: true, removedBy: interaction.user.id, removedReason: reason });
+					if (result.removed === true) {
+						interaction.reply({ content: '❌ This punishment has already been removed.', ephemeral: true });
+					}
+					else if (new Date().getTime() >= new Date(result.until).getTime()) {
+						interaction.reply({ content: '❌ This punishment has already expired.', ephemeral: true });
+					}
+					else {
+						await punishmentLogSchema.updateOne({ _id: rId }, { removed: true, removedBy: interaction.user.id, removedReason: reason });
+						target.timeout(null, reason);
+
+						if (public) {
+							await interaction.reply({ embeds: [publicembed] });
+							await interaction.followUp({ content: `✅ You've removed **${targetuser.tag}**'s timeout with the reason: *${reason}*.`, ephemeral: true });
+						}
+						else {
+							await interaction.reply({ content: `✅ You've removed **${targetuser.tag}**'s timeout with the reason: *${reason}*.`, ephemeral: true });
+						}
+
+						client.channels.cache.get(stafflogs).send({ embeds: [staffembed] });
+
+						target.send({ embeds: [dmembed] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
+
+						console.log(`[Punishment] ${interaction.user.tag}: ${targetuser.tag} was unmuted with the reason: ${reason}`);
+					}
 				}
 				else {
 					interaction.reply({ content: '❌ A punishment with this Reference ID could not be found.', ephemeral: true });
@@ -83,21 +107,6 @@ module.exports = {
 			}
 		});
 
-		target.timeout(null, reason);
-
-		if (public) {
-			await interaction.reply({ embeds: [publicembed] });
-			await interaction.followUp({ content: `✅ You've removed **${targetuser.tag}**'s timeout with the reason: *${reason}*.`, ephemeral: true });
-		}
-		else {
-			await interaction.reply({ content: `✅ You've removed **${targetuser.tag}**'s timeout with the reason: *${reason}*.`, ephemeral: true });
-		}
-
-		client.channels.cache.get(stafflogs).send({ embeds: [staffembed] });
-
-		target.send({ embeds: [dmembed] }).catch(() => interaction.followUp({ content: `❌ Failed to send a Notification DM to **${target.tag}** as they have their DMs Off.`, ephemeral: true }));
-
-		console.log(`[Punishment] ${interaction.user.tag}: ${targetuser.tag} was unmuted with the reason: ${reason}`);
 
 	},
 };
